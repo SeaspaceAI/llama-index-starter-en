@@ -1,7 +1,7 @@
 ### Llama-index starter tutorial
 Official documentation ```https://docs.llamaindex.ai/en/stable/index.html```
 
-### Postavljanje
+### Setup
 1. Fork and clone the repo ```https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo```
 2. Rename ```.env.temlplate``` to ```.env``` and the the values of api keys for OpenAi and Traceloop
 3. Create virtual environment ```python -m venv venv``` and activate it ```venv\scripts\activate\``` (this is windows command)
@@ -40,7 +40,7 @@ Comparison with model training:
 - Data retrieval is on-demand, making the data always up-to-date.
 - Llama-index has the ability to display the sources of retrieved information, making observation more reliable.
 
-### Stages within RAG sustava
+### Stages within RAG system
 1. **Loading:** this refers to getting your data from where it lives – whether it’s text files, PDFs, another website, a database, or an API – into your pipeline. LlamaHub provides hundreds of connectors to choose from.
 
 2. **Indexing:** this means creating a data structure that allows for querying the data. For LLMs this nearly always means creating vector embeddings, numerical representations of the meaning of your data, as well as numerous other metadata strategies to make it easy to accurately find contextually relevant data.
