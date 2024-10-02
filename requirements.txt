@@ -1,0 +1,9 @@
+python-dotenv
+traceloop-sdk
+llama-index
+llama-index-agent-openai
+llama-index-llms-anthropic
+llama-index-llms-groq
+llama-index-program-openai
+llama-index-program-evaporate
+llama-index-readers-file pymupdf

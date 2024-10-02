@@ -3,32 +3,23 @@ from dotenv import load_dotenv
 
 load_dotenv()
 openai_key = os.getenv("OPENAI_API_KEY")
+openai_model = os.getenv("OPENAI_MODEL")
 
-from llama_index import (
-    VectorStoreIndex,
-    SimpleDirectoryReader,
-    ServiceContext,
-    set_global_service_context
-)
-from llama_index.llms import OpenAI
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, Settings
+from llama_index.llms.openai import OpenAI
 
 llm = OpenAI(
-  system_prompt="Always respond in croatian language"
+    model=openai_model,
+    system_prompt="Always respond in Croatian language"
 )
 
-service_context = ServiceContext.from_defaults(
-    llm=llm
-)
-set_global_service_context(service_context) # Define global_service_context, it is always used for indexes.
+Settings.llm = llm
 
 #To avoid creating a new vector record every time the script is run, 
 #it is possible to save the record locally and load it each time the script is executed.
 
 # If a created record already exists, load that record.
-from llama_index import (
-    StorageContext,
-    load_index_from_storage,
-)
+from llama_index.core import StorageContext, load_index_from_storage
 try:
     storage_context = StorageContext.from_defaults(
         persist_dir="./storage/2021"

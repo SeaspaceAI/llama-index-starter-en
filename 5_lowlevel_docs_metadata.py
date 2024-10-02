@@ -3,27 +3,23 @@ from dotenv import load_dotenv
 
 load_dotenv()
 openai_key = os.getenv("OPENAI_API_KEY")
+openai_model = os.getenv("OPENAI_MODEL")
 
-from llama_index import (
-    VectorStoreIndex,
-    SimpleDirectoryReader,
-    ServiceContext,
-    set_global_service_context
-)
-from llama_index.llms import OpenAI
+from llama_index.core import VectorStoreIndex, Settings
+from llama_index.llms.openai import OpenAI
 
-llm = OpenAI(temperature=0.1)
-service_context = ServiceContext.from_defaults(
-    llm=llm
+llm = OpenAI(
+    temperature=0.1,
+    model=openai_model
 )
-set_global_service_context(service_context)
+Settings.llm = llm
 
 # In this module, low-level API concepts for managing documents and creating metadata will be demonstrated, 
 # including the creation of automatic metadata. There are various extractors available, 
 # such as SummaryExtractor (node summarization), QuestionsAnsweredExtractor (sets a set of questions for the context of the node), 
 # TitleExtractor (sets the title of the node), and EntityExtractor (extracts entities).
-from llama_index.schema import MetadataMode
-from llama_index.extractors import (
+from llama_index.core.schema import MetadataMode
+from llama_index.core.extractors import (
     SummaryExtractor,
     QuestionsAnsweredExtractor
 )
@@ -46,7 +42,7 @@ extractors_2 = [
 # Below is an example of independently defining a document instance and node length. 
 # Reminder: SimpleDirectoryReader uses a node size of 1024 tokens, but here, creating nodes of 512 tokens will be demonstrated.
 from pypdf import PdfReader
-from llama_index import Document
+from llama_index.core import Document
 
 # An instance of a document is created for each page of text, and arbitrary metadata is added.
 reader = PdfReader("./whitepapers/bitcoin.pdf")
@@ -65,7 +61,7 @@ for i, page in enumerate(reader.pages):
     )
 
 # TokenTextSplitter is used for creating nodes. Documents that need to be broken down into individual nodes are provided.
-from llama_index.node_parser import TokenTextSplitter
+from llama_index.core.node_parser import TokenTextSplitter
 node_parser = TokenTextSplitter(
     separator=" ", chunk_size=512, chunk_overlap=64
 )
@@ -80,7 +76,7 @@ for node in custom_nodes:
     print(node.metadata)
 
 #  Processing nodes with automatic metadata.
-from llama_index.ingestion import IngestionPipeline
+from llama_index.core.ingestion import IngestionPipeline
 pipeline = IngestionPipeline(transformations=[node_parser, *extractors_1])
 nodes_1 = pipeline.run(nodes=custom_nodes, in_place=False, show_progress=True)
 print(nodes_1[3].get_content(metadata_mode="all"))
@@ -99,8 +95,8 @@ index2 = VectorStoreIndex(
 
 query_engine1 = index1.as_query_engine(streaming=True, similarity_top_k=1)
 query_engine2 = index2.as_query_engine(streaming=True, similarity_top_k=1)
-response1 = query_engine1.query("koji mehanizam dokazivanja se koristi")
-response2 = query_engine2.query("koji mehanizam dokazivanja se koristi")
+response1 = query_engine1.query("Which proof mechanizam is used?")
+response2 = query_engine2.query("Which proof mechanizam is used?")
 print("response1 -> ", response1)
 print("response2 -> ", response2)
 

@@ -15,24 +15,14 @@ traceloop_key = os.getenv("TRACELOOP_API_KEY")
 
 Traceloop.init(disable_batch=True, api_key=traceloop_key)
 
-from llama_index import (
-    VectorStoreIndex,
-    SimpleDirectoryReader,
-    ServiceContext,
-    set_global_service_context
-)
-from llama_index.llms import OpenAI
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
+from llama_index.llms.openai import OpenAI
 
 llm = OpenAI(
-  system_prompt="Always respond in croatian language"
+  system_prompt="Always respond in Croatian language"
 )
 
-service_context = ServiceContext.from_defaults(
-    llm=llm
-)
-set_global_service_context(service_context)
-
-from llama_index import (
+from llama_index.core import (
     StorageContext,
     load_index_from_storage,
 )
@@ -56,5 +46,5 @@ if not index_loaded:
     index.storage_context.persist(persist_dir="./storage/2021")
 
 query_engine = index.as_query_engine(streaming=True)
-streaming_response = query_engine.query("Branches abroad.")
+streaming_response = query_engine.query("Branch offices abroad")
 streaming_response.print_response_stream()

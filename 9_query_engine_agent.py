@@ -3,25 +3,17 @@ from dotenv import load_dotenv
 
 load_dotenv()
 openai_key = os.getenv("OPENAI_API_KEY")
+openai_model = os.getenv("OPENAI_MODEL")
 
-from llama_index import (
-    VectorStoreIndex,
-    SimpleDirectoryReader,
-    ServiceContext,
-    set_global_service_context
-)
-from llama_index.llms import OpenAI
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
+from llama_index.llms.openai import OpenAI
 
-llm = OpenAI()
-service_context = ServiceContext.from_defaults(
-    llm=llm
+llm = OpenAI(
+    model=openai_model
 )
-set_global_service_context(service_context)
 
 # Load documents
-from llama_index import (
-    SimpleDirectoryReader,
-    VectorStoreIndex,
+from llama_index.core import (
     StorageContext,
     load_index_from_storage,
 )
@@ -67,11 +59,11 @@ if not index_two_loaded:
     twentytwo_index.storage_context.persist(persist_dir="./storage/2022")
 
 # Define query_engine
-twentyone_engine = twentyone_index.as_query_engine(similarity_top_k=3)
-twentytwo_engine = twentytwo_index.as_query_engine(similarity_top_k=3)
+twentyone_engine = twentyone_index.as_query_engine(similarity_top_k=3, llm=llm)
+twentytwo_engine = twentytwo_index.as_query_engine(similarity_top_k=3, llm=llm)
 
 # Define query_engine tools for agent usage
-from llama_index.tools import QueryEngineTool, ToolMetadata
+from llama_index.core.tools import QueryEngineTool, ToolMetadata
 query_engine_tools = [
     QueryEngineTool(
         query_engine=twentyone_engine,
@@ -96,7 +88,7 @@ query_engine_tools = [
 ]
 
 # Define agent and pass the tools 
-from llama_index.agent import OpenAIAgent
+from llama_index.agent.openai import OpenAIAgent
 agent = OpenAIAgent.from_tools(
     query_engine_tools, 
     verbose=True,
@@ -110,6 +102,8 @@ agent = OpenAIAgent.from_tools(
 # Ask a single prompt
 res = agent.query("Which year had more employes?")
 print(res)
+
+## --------------------------------------------------------------------------------------------------
 
 # # Chat with agent
 # agent.chat_repl()

@@ -3,21 +3,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 openai_key = os.getenv("OPENAI_API_KEY")
+openai_model = os.getenv("OPENAI_MODEL")
 
-from llama_index import (
-    VectorStoreIndex,
-    SimpleDirectoryReader,
-    ServiceContext,
-    set_global_service_context
-)
-from llama_index.llms import OpenAI
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
+from llama_index.llms.openai import OpenAI
 
-llm = OpenAI()
-service_context = ServiceContext.from_defaults(
-    llm=llm,
-    system_prompt="Respond in Croatian language"
+llm = OpenAI(
+    model=openai_model
 )
-set_global_service_context(service_context)
 
 documents = SimpleDirectoryReader(
     input_files=["./whitepapers/bitcoin.pdf"]
@@ -30,8 +23,8 @@ index = VectorStoreIndex.from_documents(
 # Chat_engine generally adds new functionalities and is built on the foundation of query_engine. 
 # As mentioned in the previous module, a significant difference is the addition of the conversation history throughout the entire conversation. 
 # So far, mostly high-level API concepts have been used. For utilizing a custom conversation history, low-level API composition must be used.
-from llama_index.llms import ChatMessage, MessageRole
-from llama_index.chat_engine.condense_plus_context import (
+from llama_index.core.llms import ChatMessage, MessageRole
+from llama_index.core.chat_engine.condense_plus_context import (
     CondensePlusContextChatEngine,
 )
 
@@ -45,7 +38,7 @@ custom_chat_history = [
 ]
 
 # Define query_engine
-query_engine = index.as_query_engine()
+query_engine = index.as_query_engine(llm=llm)
 
 # Define retriver
 # Retrievers are responsible for fetching the most relevant context based on the user's query from the index.

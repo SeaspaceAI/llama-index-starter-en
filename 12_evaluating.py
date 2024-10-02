@@ -7,24 +7,14 @@ openai_key = os.getenv("OPENAI_API_KEY")
 # In this module, the way to evaluate the relevance of results and retrieved nodes will be shown. 
 # There are more complex evaluation methods, but for the purposes of this tutorial, a basic approach will be sufficient.
 
-from llama_index import (
-    VectorStoreIndex,
-    SimpleDirectoryReader,
-    ServiceContext,
-    set_global_service_context
-)
-from llama_index.llms import OpenAI
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
+from llama_index.llms.openai import OpenAI
 
 llm = OpenAI(
   system_prompt="Always respond in croatian language"
 )
 
-service_context = ServiceContext.from_defaults(
-    llm=llm
-)
-set_global_service_context(service_context)
-
-from llama_index import (
+from llama_index.core import (
     StorageContext,
     load_index_from_storage,
 )
@@ -48,12 +38,12 @@ if not index_loaded:
     index.storage_context.persist(persist_dir="./storage/2021")
 
 # Define evaluator
-from llama_index.evaluation import FaithfulnessEvaluator
-evaluator = FaithfulnessEvaluator(service_context=service_context)
+from llama_index.core.evaluation import FaithfulnessEvaluator
+evaluator = FaithfulnessEvaluator()
 
 # Send prompt
 query_engine = index.as_query_engine()
-response = query_engine.query("Poslovnice u inozemstvu")
+response = query_engine.query("Branch offices abroad")
 print(response)
 
 # Evaluate the relevance of answers based on the results.

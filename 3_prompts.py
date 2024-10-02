@@ -3,23 +3,17 @@ from dotenv import load_dotenv
 
 load_dotenv()
 openai_key = os.getenv("OPENAI_API_KEY")
+openai_model = os.getenv("OPENAI_MODEL")
 
-from llama_index import (
-    VectorStoreIndex,
-    SimpleDirectoryReader,
-    ServiceContext,
-    set_global_service_context
-)
-from llama_index.llms import OpenAI
-from llama_index.prompts import PromptTemplate
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, Settings
+from llama_index.llms.openai import OpenAI
 
 llm = OpenAI(
-  system_prompt="Always respond in croatian language"
+    model=openai_model,
+    system_prompt="Always respond in croatian language"
 )
-service_context = ServiceContext.from_defaults(
-    llm=llm
-)
-set_global_service_context(service_context)
+
+Settings.llm = llm
 
 documents = SimpleDirectoryReader(
     input_files=["./whitepapers/bitcoin.pdf"]
@@ -28,7 +22,6 @@ documents = SimpleDirectoryReader(
 index = VectorStoreIndex.from_documents(
   documents
 )
-
 
 # To find relevant nodes and obtain accurate answers, having a good prompt is essential. 
 # The ideal situation is when precise steps for the LLM to execute are provided, 
@@ -43,8 +36,11 @@ for k, v in prompts_dict.items():
     print(v.get_template())
     print(f"\n\n")
 
+## -----------------------------------------------------------------------------------------
+
 # # To change the query templates, it is always necessary to have variables "context_str" for the retrieved context and 
 # # "query_str" for the query.
+# from llama_index.core.prompts import PromptTemplate
 # custom_qa_prompt = PromptTemplate(
 #     "Context information is below.\n"
 #     "---------------------\n"
@@ -65,7 +61,10 @@ for k, v in prompts_dict.items():
 #     print(v.get_template())
 #     print(f"\n\n")
 
+## -------------------------------------------------------------------------------------------------
+
 # # Sometimes it is necessary to dynamically change the query.
+# from llama_index.core.prompts import PromptTemplate
 # qa_prompt_tmpl_str = """\
 # Context information is below.
 # ---------------------

@@ -3,42 +3,35 @@ from dotenv import load_dotenv
 
 load_dotenv()
 openai_key = os.getenv("OPENAI_API_KEY")
+openai_model = os.getenv("OPENAI_MODEL")
 
-from llama_index import (
-    VectorStoreIndex,
-    SimpleDirectoryReader,
-    ServiceContext,
-    set_global_service_context
-)
-from llama_index.llms import OpenAI
+from llama_index.llms.openai import OpenAI
 
-llm = OpenAI()
-service_context = ServiceContext.from_defaults(
-    llm=llm
+llm = OpenAI(
+    model=openai_model
 )
-set_global_service_context(service_context)
 
 # Agents in LlamaIndex are powered by the LLM. They are intelligent chatbots with knowledge, capable of 
 # performing tasks on given reading documents and even writing data. 
 # More precisely, they have access to customized tools. These tools can be functions, other LLMs, query_engine, etc.
 
 # For this example, functions (tools) for multiplication and addition are defined.
-from llama_index.tools import FunctionTool
+from llama_index.core.tools import FunctionTool
 
 def multiply(a: int, b: int) -> int:
-    """Pomnoži dva broja i vrati rezultat"""
+    """Multiply two numbers and return the result"""
     return a * b
 
 multiply_tool = FunctionTool.from_defaults(fn=multiply)
 
 def add(a: int, b: int) -> int:
-    """Zbroji dva broja i vrati rezultat"""
+    """Add two numbers and return the result"""
     return a + b
 
 add_tool = FunctionTool.from_defaults(fn=add)
 
 # An agent is defined, and tools are passed to it.
-from llama_index.agent import OpenAIAgent
+from llama_index.agent.openai import OpenAIAgent
 agent = OpenAIAgent.from_tools(
     [multiply_tool, add_tool], 
     llm=llm, 
@@ -50,6 +43,8 @@ response = agent.chat("What is (121 * 3) + 42?")
 print(str(response))
 print("------------------------------")
 print(response.sources)
+
+## ---------------------------------------------------------------------------------------------------
 
 # # stream
 # response = agent.stream_chat(

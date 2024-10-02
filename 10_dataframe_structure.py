@@ -9,24 +9,21 @@ openai_key = os.getenv("OPENAI_API_KEY")
 
 # Load documents
 from pathlib import Path
-from llama_index import download_loader
+from llama_index.readers.file import PyMuPDFReader
 import re
 
-PyMuPDFReader = download_loader("PyMuPDFReader")
 loader = PyMuPDFReader()
 
 pdf_files = Path("./resumes/").glob("*.pdf")
 
 # Load OpenAIPydanticProgram, exclusively using gpt-4 as older models are not sufficiently good for such tasks.
-from llama_index.program import (
-    OpenAIPydanticProgram,
-    DataFrameRowsOnly,
-)
-from llama_index.llms import OpenAI
+from llama_index.program.openai import OpenAIPydanticProgram
+from llama_index.program.evaporate.df import DataFrameRowsOnly 
+from llama_index.llms.openai import OpenAI
 
 program = OpenAIPydanticProgram.from_defaults(
     output_cls=DataFrameRowsOnly,
-    llm=OpenAI(temperature=0, model="gpt-4-1106-preview"), # gpt-4-trubo
+    llm=OpenAI(temperature=0, model="gpt-4o"),
     prompt_template_str=(
         "Please extract the following text into a structured data:"
         " {input_str}. The column names are the following: ['Name', 'Birth date',"
